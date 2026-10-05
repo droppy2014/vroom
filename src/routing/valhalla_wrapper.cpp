@@ -9,6 +9,8 @@ All rights reserved (see LICENSE).
 
 #include "../../include/polylineencoder/src/polylineencoder.h"
 
+#include <utility>
+
 #include "routing/valhalla_wrapper.h"
 #include "utils/helpers.h"
 
@@ -20,13 +22,27 @@ constexpr unsigned valhalla_polyline_precision = 6;
 
 ValhallaWrapper::ValhallaWrapper(const std::string& profile,
                                  const Server& server)
+  : ValhallaWrapper(profile, server, {}) {
+}
+
+ValhallaWrapper::ValhallaWrapper(const std::string& profile,
+                                 const Server& server,
+                                 std::string costing_options_json)
   : HttpWrapper(profile,
                 server,
                 "sources_to_targets",
                 "sources_to_targets",
                 "sources_to_targets",
                 "route",
-                R"("directions_type":"none")") {
+                R"("directions_type":"none")"),
+    _costing_options_json(std::move(costing_options_json)) {
+}
+
+void ValhallaWrapper::append_costing_options(std::string& query) const {
+  if (!_costing_options_json.empty()) {
+    query += R"(,"costing_options":)";
+    query += _costing_options_json;
+  }
 }
 
 std::string ValhallaWrapper::get_matrix_query(
@@ -45,7 +61,9 @@ std::string ValhallaWrapper::get_matrix_query(
 
   query += "{\"sources\":[" + all_locations;
   query += "],\"targets\":[" + all_locations;
-  query += R"(],"costing":")" + profile + "\"}";
+  query += R"(],"costing":")" + profile + "\"";
+  append_costing_options(query);
+  query += "}";
 
   query += " HTTP/1.1\r\n";
   query += "Host: " + _server.host + "\r\n";
@@ -70,6 +88,7 @@ ValhallaWrapper::get_route_query(const std::vector<Location>& locations) const {
 
   query += R"(],"costing":")" + profile + "\"";
   query += "," + _routing_args;
+  append_costing_options(query);
   query += "}";
 
   query += " HTTP/1.1\r\n";

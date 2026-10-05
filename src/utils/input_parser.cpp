@@ -11,6 +11,8 @@ All rights reserved (see LICENSE).
 
 #include "../include/rapidjson/include/rapidjson/document.h"
 #include "../include/rapidjson/include/rapidjson/error/en.h"
+#include "../include/rapidjson/include/rapidjson/stringbuffer.h"
+#include "../include/rapidjson/include/rapidjson/writer.h"
 
 #include "utils/input_parser.h"
 
@@ -35,6 +37,25 @@ inline std::string get_string(const rapidjson::Value& object, const char* key) {
     value = object[key].GetString();
   }
   return value;
+}
+
+inline std::string get_costing_options(const rapidjson::Value& object) {
+  if (!object.HasMember("costing_options")) {
+    return {};
+  }
+
+  const auto& costing_options = object["costing_options"];
+  if (!costing_options.IsObject()) {
+    throw InputException("Invalid costing_options.");
+  }
+
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  if (!costing_options.Accept(writer)) {
+    throw InputException("Invalid costing_options.");
+  }
+
+  return buffer.GetString();
 }
 
 inline double get_double(const rapidjson::Value& object, const char* key) {
@@ -567,6 +588,8 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
   if (!json_input.IsObject()) {
     throw InputException("Input root is not an object.");
   }
+
+  input.set_costing_options(get_costing_options(json_input));
 
   if (!json_input.HasMember("vehicles") || !json_input["vehicles"].IsArray()) {
     throw InputException("Invalid vehicles.");

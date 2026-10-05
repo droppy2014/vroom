@@ -14,6 +14,7 @@ All rights reserved (see LICENSE).
 #include <memory>
 #include <optional>
 #include <unordered_map>
+#include <utility>
 
 #include "routing/wrapper.h"
 #include "structures/generic/matrix.h"
@@ -24,16 +25,24 @@ All rights reserved (see LICENSE).
 
 namespace vroom {
 
+class Input;
+
 namespace io {
 // Profile name used as key.
 using Servers =
   std::unordered_map<std::string, Server, StringHash, std::equal_to<>>;
+
+void parse(Input& input, const std::string& input_str, bool geometry);
 } // namespace io
 
 class VRP;
 
 class Input {
 private:
+  friend void io::parse(Input& input,
+                        const std::string& input_str,
+                        bool geometry);
+
   TimePoint _start_loading{std::chrono::high_resolution_clock::now()};
   TimePoint _end_loading;
   TimePoint _end_solving;
@@ -56,6 +65,7 @@ private:
   bool _report_distances;
   bool _has_jobs{false};
   bool _has_shipments{false};
+  std::string _costing_options_json;
   std::unordered_map<std::string,
                      Matrix<UserDuration>,
                      StringHash,
@@ -122,6 +132,10 @@ private:
   void set_matrices(unsigned nb_thread, bool sparse_filling = false);
 
   void add_routing_wrapper(const std::string& profile);
+
+  void set_costing_options(std::string costing_options_json) {
+    _costing_options_json = std::move(costing_options_json);
+  }
 
 public:
   std::vector<Job> jobs;

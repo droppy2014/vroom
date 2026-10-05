@@ -159,10 +159,10 @@ solution quality and computing times.
 To cite Vroom in publications, please use:
 
 ```bibtex
-@manual{vroom_v1.14,
-   title = {{Vroom v1.14, Vehicle Routing Open-source Optimization Machine}},
+@manual{vroom_v1.15,
+   title = {{Vroom v1.15, Vehicle Routing Open-source Optimization Machine}},
    author = {Coupey, Julien and Nicod, Jean-Marc and Varnier, Christophe},
-   year = 2024,
+   year = 2026,
    organization = {Verso (\url{https://verso-optim.com/})},
    address = {Besançon, France},
    note = {\url{http://vroom-project.org/}}
