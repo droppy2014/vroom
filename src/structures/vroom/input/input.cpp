@@ -93,7 +93,9 @@ void Input::add_routing_wrapper(const std::string& profile) {
       throw InputException("Invalid profile: " + profile + ".");
     }
     routing_wrapper =
-      std::make_unique<routing::ValhallaWrapper>(profile, search->second);
+      std::make_unique<routing::ValhallaWrapper>(profile,
+                                                 search->second,
+                                                 _costing_options_json);
   } break;
   }
 #endif

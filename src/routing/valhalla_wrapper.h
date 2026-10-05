@@ -16,9 +16,13 @@ namespace vroom::routing {
 
 class ValhallaWrapper : public HttpWrapper {
 private:
+  const std::string _costing_options_json;
+
   std::string get_matrix_query(const std::vector<Location>& locations) const;
 
   std::string get_route_query(const std::vector<Location>& locations) const;
+
+  void append_costing_options(std::string& query) const;
 
   std::string build_query(const std::vector<Location>& locations,
                           const std::string& service) const override;
@@ -50,6 +54,10 @@ private:
 
 public:
   ValhallaWrapper(const std::string& profile, const Server& server);
+
+  ValhallaWrapper(const std::string& profile,
+                  const Server& server,
+                  std::string costing_options_json);
 };
 
 } // namespace vroom::routing
